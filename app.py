@@ -1,67 +1,93 @@
 import streamlit as st
-import google.generativeai as genai
 import time
 
-# --- 1. SETUP ---
-# (Keep your dictionaries with Pinyin here from our previous code!)
-# ... [Insert cities, jobs, hobbies, looks, etc. dictionaries here] ...
-
+# --- 1. 完整的词汇字典 (包含拼音) ---
 cities = {
-    "上海 (Shànghǎi)": "上海", "北京 (Běijīng)": "北京", "成都 (Chéngdū)": "成都", 
-    "广州 (Guǎngzhōu)": "广州", "深圳 (Shēnzhèn)": "深圳", "西安 (Xī'ān)": "西安", 
-    "香港 (Xiānggǎng)": "香港", "沈阳 (Shěnyáng)": "沈阳"
+    "上海 (Shànghǎi)": "Shanghai", "北京 (Běijīng)": "Beijing", "成都 (Chéngdū)": "Chengdu", 
+    "广州 (Guǎngzhōu)": "Guangzhou", "深圳 (Shēnzhèn)": "Shenzhen", "西安 (Xī'ān)": "Xi'an", 
+    "香港 (Xiānggǎng)": "Hong Kong", "沈阳 (Shěnyáng)": "Shenyang"
 }
 
-# (I will add a simplified list of jobs, hobbies, and personalities for this example)
-jobs = {"学生 (Xuésheng)": "学生", "老师 (Lǎoshī)": "老师", "医生 (Yīshēng)": "医生"}
-hobbies = {"唱歌 (Chànggē)": "唱歌", "听音乐 (Tīng yīnyuè)": "听音乐"}
-personalities = {"友好 (Yǒuhǎo)": "友好", "聪明 (Cōngmíng)": "聪明", "可爱 (Kě'ài)": "可爱"}
+jobs = {
+    "学生 (Xuésheng)": "Student", "老师 (Lǎoshī)": "Teacher", 
+    "电脑工程师 (Diànnǎo gōngchéngshī)": "Computer Engineer", "医生 (Yīshēng)": "Doctor"
+}
 
-# --- 2. THE UI (A clean look for a class activity) ---
-st.set_page_config(page_title="Find a Chinese Friend", page_icon="🏮", layout="centered")
+hobbies = {
+    "听音乐 (Tīng yīnyuè)": "Listening to music", 
+    "做饭 (Zuòfàn)": "Cooking", "看书 (Kànshū)": "Reading", 
+    "看电影 (Kàn diànyǐng)": "Watching movies", "打游戏 (Dǎ yóuxì)": "Gaming", 
+    "打球 (Dǎqiú)": "Playing ball", 
+    "游泳 (Yóuyǒng)": "Swimming", "看电视 (Kàn diànshì)": "Watching TV"
+}
 
-st.markdown("# 🏮 找一个中国朋友")
-st.markdown("### Let's find your new friend together!")
-st.divider()
+personalities = {
+    "友好 (Yǒuhǎo)": "Friendly", "聪明 (Cōngmíng)": "Smart", "内向 (Nèixiàng)": "Introverted", 
+    "外向 (Wàixiàng)": "Extroverted", "幽默 (Yōumò)": "Humorous", 
+    "可爱 (Kě'ài)": "Cute", "有意思 (Yǒu yìsi)": "Interesting"
+}
 
-# Arrange input controls nicely
+looks = {
+    "胖 (Pàng)": "Chubby", "瘦 (Shòu)": "Thin", "不胖不瘦 (Bú pàng bú shòu)": "Average build", 
+    "高 (Gāo)": "Tall", "矮 (Ǎi)": "Short", "不高不矮 (Bù gāo bù ǎi)": "Average height", 
+    "帅 (Shuài)": "Handsome", "漂亮 (Piàoliang)": "Pretty", "大眼睛 (Dà yǎnjīng)": "Big eyes", 
+    "小眼睛 (Xiǎo yǎnjīng)": "Small eyes", "长头发 (Cháng tóufa)": "Long hair", 
+    "短头发 (Duǎn tóufa)": "Short hair", "中等头发 (Zhōngděng tóufa)": "Medium hair", 
+    "黑头发 (Hēi tóufa)": "Black hair", "金发 (Jīnfà)": "Blonde hair", "棕色头发 (Zōngsè tóufa)": "Brown hair"
+}
+
+purposes = {
+    "我教他英文 (Wǒ jiāo tā Yīngwén)": "I teach them English", 
+    "他教我中文 (Tā jiāo wǒ Zhōngwén)": "They teach me Chinese", 
+    "跟他说中文 (Gēn tā shuō Zhōngwén)": "Speak Chinese with them", 
+    "他教我做中国菜 (Tā jiāo wǒ zuò Zhōngguó cài)": "They teach me to cook Chinese food", 
+    "他帮我做作业 (Tā bāng wǒ zuò zuòyè)": "They help with homework", 
+    "一起打游戏 (Yìqǐ dǎ yóuxì)": "Play games together", 
+    "聊天 (Liáotiān)": "Chatting"
+}
+
+# --- 2. 应用程序界面 ---
+st.set_page_config(page_title="Find a Chinese Friend", page_icon="🏮")
+
+st.title("🏮 找一个中国朋友")
+st.write("请选择你的选项，看看你的动漫风格朋友！")
+
 col1, col2 = st.columns(2)
 
 with col1:
-    gender = st.radio("Gender (性别)", ["男 (Mán)", "女 (Nǚ)"])
-    display_city = st.selectbox("City (城市)", list(cities.keys()))
+    gender = st.radio("性别 (Gender)", ["男 (Mán)", "女 (Nǚ)"])
+    display_city = st.selectbox("城市 (City)", list(cities.keys()))
+    display_job = st.selectbox("工作 (Job)", list(jobs.keys()))
+    display_lang = st.selectbox("语言 (Language)", ["中文 (Zhōngwén)", "英文 (Yīngwén)", "都有 (Both)"])
 
 with col2:
-    display_job = st.selectbox("Job (职业)", list(jobs.keys()))
-    display_personality = st.selectbox("Personality (性格)", list(personalities.keys()))
+    display_personality = st.selectbox("性格 (Personality)", list(personalities.keys()))
+    display_hobby = st.selectbox("爱好 (Hobby)", list(hobbies.keys()))
+    display_look = st.multiselect("长相 (Look)", list(looks.keys()))
 
-# --- 3. THE "REVEAL" BUTTON ---
-if st.button("Generate My Friend! ✨"):
+display_purpose = st.selectbox("目的 (Purpose)", list(purposes.keys()))
+
+# --- 3. 生成逻辑 ---
+if st.button("生成我的朋友！ ✨"):
     st.divider()
-    
-    with st.spinner("AI is drawing your friend... 正在画画..."):
-        # This creates a "seed" (a unique text fingerprint) based on their choices
-        # We need a fallback seed just in case
-        try:
-            seed_text = f"{gender}-{display_city}-{display_job}".replace(" ", "")
-        except:
-            seed_text = "default-friend-seed"
-
-        # (Simulate waiting 1 second for effect)
-        time.sleep(1) 
-
-        # --- THE IMAGE MAGIC: Japanese Anime-Style Avatar ---
-        # Multiavatar generates a unique character based on the seed
-        avatar_url = f"https://api.multiavatar.com/{seed_text}.svg"
+    with st.spinner("正在画画..."):
+        # 种子中加入了爱好，确保不同的爱好组合会产生不同的头像
+        seed_data = f"{gender}{display_city}{display_job}{display_look}{display_hobby}"
+        avatar_url = f"https://api.multiavatar.com/{seed_data}.svg"
         
-        # Display the result (Anime-Style Avatar)
-        st.header(" Meet Your Friend! 你好！👋")
-        st.image(avatar_url, width=300)
+        # 显示图片
+        st.image(avatar_url, width=250)
         
-        # CHINESE SUMMARY FOR STUDENTS (with Pinyin)
-        st.success("Success!")
-        st.markdown(f"### 介绍 (Introduction)")
-        st.markdown(f"**他是我的朋友 (He is my friend).**")
-        st.markdown(f"* 他住在**{display_city}**。")
-        st.markdown(f"* 他是一个**{display_job}**。")
-        st.markdown(f"* 他很**{display_personality}**。")
+        # 显示中文总结
+        st.subheader("你的新朋友：")
+        look_text = ", ".join(display_look) if display_look else "（未选择）"
+        
+        st.success(f"""
+        * 这位是我的朋友。
+        * 他/她住在 **{display_city}**。
+        * 他/她是一个 **{display_job}**。
+        * 他/她很 **{display_personality}**。
+        * 他/她喜欢 **{display_hobby}**。
+        * 他/她的长相：**{look_text}**。
+        * 目的：**{display_purpose}**。
+        """)
