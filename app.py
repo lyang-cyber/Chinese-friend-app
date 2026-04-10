@@ -49,7 +49,7 @@ purposes = {
 st.set_page_config(page_title="Find a Chinese Friend", page_icon="🏮")
 
 st.title("🏮 找一个中国朋友")
-st.write("请选择你的选项，看看你的动漫风格朋友！")
+st.write("Pick your choices and see your robot/anime style friend!")
 
 col1, col2 = st.columns(2)
 
@@ -69,12 +69,14 @@ display_purpose = st.selectbox("目的 (Purpose)", list(purposes.keys()))
 if st.button("生成我的朋友！ ✨"):
     st.divider()
     
-    # Create a unique seed for the image
-    seed_data = f"{gender}{display_city}{display_job}{''.join(display_look)}{display_hobby}"
-    avatar_url = f"https://api.multiavatar.com/{seed_data}.png" # Changed to PNG for better compatibility
+    # Create a unique seed
+    seed = f"{gender}{display_city}{display_job}{display_hobby}{''.join(display_look)}"
     
-    # DISPLAY IMAGE
-    st.markdown(f'<center><img src="{avatar_url}" width="250"></center>', unsafe_allow_html=True)
+    # Robohash is extremely stable and works with standard st.image
+    # set=set1 gives robots, set=set4 gives cute cats/monsters
+    avatar_url = f"https://robohash.org/{seed}.png?set=set1"
+    
+    st.image(avatar_url, caption="你好！ Nice to meet you!", width=300)
     
     # CHINESE SUMMARY
     st.subheader("你的新朋友：")
@@ -89,3 +91,4 @@ if st.button("生成我的朋友！ ✨"):
     * 他/她的长相：**{look_text}**。
     * 目的：**{display_purpose}**。
     """)
+    
