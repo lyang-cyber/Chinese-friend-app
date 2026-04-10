@@ -1,7 +1,6 @@
 import streamlit as st
-import time
 
-# --- 1. 完整的词汇字典 (包含拼音) ---
+# --- 1. VOCABULARY DICTIONARIES ---
 cities = {
     "上海 (Shànghǎi)": "Shanghai", "北京 (Běijīng)": "Beijing", "成都 (Chéngdū)": "Chengdu", 
     "广州 (Guǎngzhōu)": "Guangzhou", "深圳 (Shēnzhèn)": "Shenzhen", "西安 (Xī'ān)": "Xi'an", 
@@ -46,7 +45,7 @@ purposes = {
     "聊天 (Liáotiān)": "Chatting"
 }
 
-# --- 2. 应用程序界面 ---
+# --- 2. INTERFACE ---
 st.set_page_config(page_title="Find a Chinese Friend", page_icon="🏮")
 
 st.title("🏮 找一个中国朋友")
@@ -58,7 +57,6 @@ with col1:
     gender = st.radio("性别 (Gender)", ["男 (Mán)", "女 (Nǚ)"])
     display_city = st.selectbox("城市 (City)", list(cities.keys()))
     display_job = st.selectbox("工作 (Job)", list(jobs.keys()))
-    display_lang = st.selectbox("语言 (Language)", ["中文 (Zhōngwén)", "英文 (Yīngwén)", "都有 (Both)"])
 
 with col2:
     display_personality = st.selectbox("性格 (Personality)", list(personalities.keys()))
@@ -67,27 +65,27 @@ with col2:
 
 display_purpose = st.selectbox("目的 (Purpose)", list(purposes.keys()))
 
-# --- 3. 生成逻辑 ---
+# --- 3. GENERATION LOGIC ---
 if st.button("生成我的朋友！ ✨"):
     st.divider()
-    with st.spinner("正在画画..."):
-        # 种子中加入了爱好，确保不同的爱好组合会产生不同的头像
-        seed_data = f"{gender}{display_city}{display_job}{display_look}{display_hobby}"
-        avatar_url = f"https://api.multiavatar.com/{seed_data}.svg"
-        
-        # 显示图片
-        st.image(avatar_url, width=250)
-        
-        # 显示中文总结
-        st.subheader("你的新朋友：")
-        look_text = ", ".join(display_look) if display_look else "（未选择）"
-        
-        st.success(f"""
-        * 这位是我的朋友。
-        * 他/她住在 **{display_city}**。
-        * 他/她是一个 **{display_job}**。
-        * 他/她很 **{display_personality}**。
-        * 他/她喜欢 **{display_hobby}**。
-        * 他/她的长相：**{look_text}**。
-        * 目的：**{display_purpose}**。
-        """)
+    
+    # Create a unique seed for the image
+    seed_data = f"{gender}{display_city}{display_job}{''.join(display_look)}{display_hobby}"
+    avatar_url = f"https://api.multiavatar.com/{seed_data}.png" # Changed to PNG for better compatibility
+    
+    # DISPLAY IMAGE
+    st.markdown(f'<center><img src="{avatar_url}" width="250"></center>', unsafe_allow_html=True)
+    
+    # CHINESE SUMMARY
+    st.subheader("你的新朋友：")
+    look_text = ", ".join(display_look) if display_look else "（未选择）"
+    
+    st.success(f"""
+    * 这位是我的朋友。
+    * 他/她住在 **{display_city}**。
+    * 他/她是一个 **{display_job}**。
+    * 他/她很 **{display_personality}**。
+    * 他/她喜欢 **{display_hobby}**。
+    * 他/她的长相：**{look_text}**。
+    * 目的：**{display_purpose}**。
+    """)
