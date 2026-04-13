@@ -1,6 +1,7 @@
 import streamlit as st
 
 # --- 1. VOCABULARY DICTIONARIES ---
+# (Pinyin remains the same, used for labels)
 cities = {
     "上海 (Shànghǎi)": "Shanghai", "北京 (Běijīng)": "Beijing", "成都 (Chéngdū)": "Chengdu", 
     "广州 (Guǎngzhōu)": "Guangzhou", "深圳 (Shēnzhèn)": "Shenzhen", "西安 (Xī'ān)": "Xi'an", 
@@ -54,7 +55,7 @@ st.write("Pick your choices and see your human friend!")
 col1, col2 = st.columns(2)
 
 with col1:
-    gender = st.radio("性别 (Gender)", ["男 (Mán)", "女 (Nǚ)"])
+    gender_choice = st.radio("性别 (Gender)", ["男 (Mán)", "女 (Nǚ)"])
     display_city = st.selectbox("城市 (City)", list(cities.keys()))
     display_job = st.selectbox("工作 (Job)", list(jobs.keys()))
 
@@ -65,30 +66,24 @@ with col2:
 
 display_purpose = st.selectbox("目的 (Purpose)", list(purposes.keys()))
 
-# --- 3. GENERATION LOGIC ---
+# --- 3. GENERATION LOGIC (Guaranteed Human) ---
 if st.button("生成我的朋友！ ✨"):
     st.divider()
     
-    # We combine 'gender' and 'job' into the seed to help determine the human style
-    # gender_label must be "male" or "female" specifically for the generator
-    if "男" in gender:
-        gender_label = "male"
+    # Identify the correct gender for the generator
+    if "男" in gender_choice:
+        gen = "male"
     else:
-        gender_label = "female"
+        gen = "female"
         
-    seed = f"{gender_label}-{display_job}-{display_city}-{display_hobby}-{''.join(display_look)}"
+    # Create a unique seed based on ALL vocabulary choices
+    seed = f"{gen}-{display_city}-{display_job}-{display_hobby}-{''.join(display_look)}".replace(' ', '')
     
-    # THE ADORABLY GENERATOR (Anime/Human Style)
-    avatar_url = f"https://api.dicebear.com/8.x/adorably/svg?seed={seed}"
+    # THE DICEBEAR HUMAN GENERATOR
+    avatar_url = f"https://api.dicebear.com/8.x/lorelei/svg?seed={seed}&mood[]=happy"
     
-    # Robohash is extremely stable and works with standard st.image
-    # We need a fallback seed just in case
-    try:
-        st.image(avatar_url, caption=f"你好！ 我是来自{cities[display_city]}的{jobs[display_job]}!", width=300)
-    except Exception as e:
-        # If it fails, we use a different public fallback. DiceBear usually works!
-        fallback_url = f"https://api.dicebear.com/7.x/avataaars/svg?seed={seed}&baseColor[]=#E0AC69"
-        st.image(fallback_url, caption="Nice to meet you! Meet my friend!", width=300)
+    # Display the Human image (Lorelei set is very diverse and human)
+    st.image(avatar_url, caption=f"你好！ 我是来自{cities[display_city]}的{jobs[display_job]}!", width=300)
     
     # CHINESE SUMMARY
     st.subheader("你的新朋友：")
